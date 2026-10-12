@@ -1,240 +1,537 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chúc mừng sinh nhật chị yêu dấu</title>
-<style>
-*{box-sizing:border-box}
-html,body{
-  margin:0;width:100%;height:100%;
-  overflow:hidden;background:#03050d;
-}
-body{font-family:Arial,sans-serif}
-canvas{display:block;width:100%;height:100%}
-.hint{
-  position:fixed;bottom:14px;left:0;right:0;
-  text-align:center;color:rgba(255,255,255,.42);
-  font-size:12px;letter-spacing:1px;
-  pointer-events:none;transition:opacity 1s;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tập thể Nam lớp A10 - Chúc mừng 20/10</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0b051a;
+            color: #fff;
+        }
+
+        /* Nền sao lấp lánh */
+        #space {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at center, #1b1035 0%, #080312 100%);
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Container chính */
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Slide / Section */
+        .section {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease-in-out;
+            padding: 20px;
+        }
+
+        .section.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Tiêu đề */
+        .main-title {
+            font-size: 2.2rem;
+            color: #ffb6c1;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 15px rgba(255, 182, 193, 0.6);
+            font-weight: bold;
+            max-width: 900px;
+            padding: 0 15px;
+        }
+
+        .content-box {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            background: rgba(25, 15, 45, 0.7);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+            max-width: 950px;
+            margin-bottom: 20px;
+        }
+
+        /* Lưới đúng 6 ô chữ bí mật (2 hàng x 3 cột) */
+        .puzzle-heart {
+            display: grid;
+            grid-template-columns: repeat(3, 85px);
+            grid-template-rows: repeat(2, 85px);
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .puzzle-piece {
+            width: 85px;
+            height: 85px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #ff758c, #ff7eb3);
+            border-radius: 12px;
+            border: 2px solid #ffb6c1;
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+            user-select: none;
+            text-align: center;
+            padding: 5px;
+        }
+
+        .puzzle-piece:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 15px #ff69b4;
+            z-index: 10;
+        }
+
+        /* Lịch Tháng 10/2026 */
+        .calendar-card {
+            background: rgba(40, 20, 65, 0.85);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #ff69b4;
+            text-align: center;
+            width: 280px;
+        }
+
+        .calendar-card h3 {
+            color: #ff69b4;
+            margin-bottom: 5px;
+            font-size: 1.4rem;
+        }
+
+        .calendar-card p {
+            color: #ddd;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .calendar-table th, .calendar-table td {
+            padding: 6px;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        .calendar-table th {
+            color: #ffb6c1;
+        }
+
+        .calendar-table td.highlight {
+            background: #ff69b4;
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            box-shadow: 0 0 10px #ff69b4;
+        }
+
+        /* Section 2: Khối hình Trái Tim 3D xoay (28 chỗ) */
+        .globe-container {
+            width: 400px;
+            height: 400px;
+            position: relative;
+            perspective: 1200px;
+            margin-bottom: 20px;
+        }
+
+        .globe {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            animation: rotateHeart 25s infinite linear;
+        }
+
+        @keyframes rotateHeart {
+            from { transform: rotateX(0deg) rotateY(0deg); }
+            to { transform: rotateX(360deg) rotateY(360deg); }
+        }
+
+        .globe-item {
+            position: absolute;
+            width: 55px;
+            height: 55px;
+            left: 172px;
+            top: 172px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #ff4d6d, #ff758c);
+            border: 2px solid #ffb6c1;
+            box-shadow: 0 0 10px rgba(255,105,180,0.6);
+            cursor: pointer;
+            font-size: 0.65rem;
+            font-weight: bold;
+            color: #fff;
+            text-align: center;
+            transition: transform 0.3s;
+            user-select: none;
+        }
+
+        .globe-item:hover {
+            transform: scale(1.6) !important;
+            z-index: 100;
+            background: #ff69b4;
+        }
+
+        /* Section 3: Bức thư chúc mừng */
+        .letter-envelope {
+            background: #ffccd5;
+            width: 450px;
+            padding: 30px;
+            border-radius: 12px;
+            color: #5c061c;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.6);
+            position: relative;
+            text-align: center;
+            border: 2px dashed #ff4d6d;
+            animation: popUp 0.8s ease-out;
+            margin-bottom: 20px;
+        }
+
+        @keyframes popUp {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .letter-envelope h2 {
+            margin-bottom: 15px;
+            color: #d90429;
+        }
+
+        .letter-envelope p {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .signature {
+            font-style: italic;
+            font-weight: bold;
+            text-align: right;
+            color: #b7094c;
+        }
+
+        /* Nút Tiếp tục chuyển slide */
+        .next-step-btn {
+            background: linear-gradient(45deg, #ff4d6d, #ff758c);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4);
+            transition: transform 0.2s, background 0.2s;
+            z-index: 50;
+        }
+
+        .next-step-btn:hover {
+            transform: scale(1.08);
+            background: linear-gradient(45deg, #ff758c, #ff4d6d);
+        }
+
+        /* Fullscreen Photo Modal */
+        #photo-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 2, 10, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        #photo-modal.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #modal-img {
+            max-width: 80%;
+            max-height: 70vh;
+            border-radius: 10px;
+            border: 3px solid #ff69b4;
+            box-shadow: 0 0 25px rgba(255, 105, 180, 0.8);
+            margin-bottom: 25px;
+            object-fit: contain;
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, #ff4d6d, #ff758c);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4);
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.05);
+            background: linear-gradient(45deg, #ff758c, #ff4d6d);
+        }
+
+        /* Nút chọn slide dưới cùng */
+        .nav-controls {
+            position: absolute;
+            bottom: 15px;
+            display: flex;
+            gap: 15px;
+            z-index: 50;
+        }
+
+        .nav-btn {
+            background: rgba(255, 105, 180, 0.2);
+            border: 1px solid #ff69b4;
+            color: white;
+            padding: 6px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.3s;
+        }
+
+        .nav-btn.active, .nav-btn:hover {
+            background: #ff69b4;
+            box-shadow: 0 0 10px #ff69b4;
+        }
+    </style>
 </head>
 <body>
-<canvas id="scene"></canvas>
-<div class="hint" id="hint">✨ CHÚC MỪNG SINH NHẬT CHỊ CẢ ✨</div>
 
-<script>
-(()=>{
-const canvas=document.getElementById('scene');
-const ctx=canvas.getContext('2d');
-const hint=document.getElementById('hint');
-let W,H,dpr,stars=[],particles=[],targets=[],trail=[];
-let start=performance.now(),last=0;
-let textCanvas,textCtx;
-const rand=(a,b)=>a+Math.random()*(b-a);
+    <div id="space"></div>
 
-function resize(){
-  dpr=Math.min(devicePixelRatio||1,2);
-  W=innerWidth;H=innerHeight;
-  canvas.width=Math.round(W*dpr);
-  canvas.height=Math.round(H*dpr);
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-  makeStars();
-  makeTextTargets();
-  initParticles();
-}
+    <div class="container">
+        <!-- SECTION 1: 6 Ô bí mật & Lịch -->
+        <div class="section active" id="section-1">
+            <h1 class="main-title">Tập thể Nam lớp A10 thân gửi các bạn nữ nhân ngày 20/10</h1>
+            <div class="content-box">
+                <!-- 6 ô chữ bí mật -->
+                <div class="puzzle-heart" id="puzzle-grid"></div>
 
-function makeStars(){
-  stars=[];
-  const count=Math.max(180,Math.floor(W*H/2300));
-  for(let i=0;i<count;i++){
-    stars.push({
-      x:Math.random()*W,
-      y:Math.random()*H,
-      r:rand(.35,1.65),
-      a:rand(.18,.9),
-      speed:rand(.3,1.8),
-      phase:rand(0,Math.PI*2)
-    });
-  }
-}
+                <!-- Lịch Tháng 10/2026 -->
+                <div class="calendar-card">
+                    <h3>October 2026</h3>
+                    <p>Ngày Phụ Nữ Việt Nam</p>
+                    <table class="calendar-table">
+                        <tr>
+                            <th>Su</th><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th>
+                        </tr>
+                        <tr><td></td><td></td><td></td><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+                        <tr><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td></tr>
+                        <tr><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td></tr>
+                        <tr><td>19</td><td class="highlight">20</td><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td></tr>
+                        <tr><td>26</td><td>27</td><td>28</td><td>29</td><td>30</td><td>31</td><td></td></tr>
+                    </table>
+                </div>
+            </div>
+            <!-- Nút Tiếp tục sang Khối Trái Tim Ảnh -->
+            <button class="next-step-btn" onclick="switchSection(1)">Tiếp tục ➔</button>
+        </div>
 
-function makeTextTargets(){
-  textCanvas=document.createElement('canvas');
-  textCanvas.width=Math.floor(W);
-  textCanvas.height=Math.floor(H);
-  textCtx=textCanvas.getContext('2d',{willReadFrequently:true});
-  textCtx.clearRect(0,0,W,H);
+        <!-- SECTION 2: Khối Trái Tim 3D chứa 28 ảnh định dạng .jpg -->
+        <div class="section" id="section-2">
+            <h1 class="main-title">Khoảnh Khắc Đẹp Của Lớp A10</h1>
+            <div class="globe-container">
+                <div class="globe" id="globe-3d"></div>
+            </div>
+            <!-- Nút Tiếp tục sang Lời Chúc -->
+            <button class="next-step-btn" onclick="switchSection(2)">Tiếp tục ➔</button>
+        </div>
 
-  const lines=['Chúc mừng sinh nhật','Bạn chị dấu'];
-  const fontSize=Math.min(W/15,H/7,58);
+        <!-- SECTION 3: Bức thư chúc mừng -->
+        <div class="section" id="section-3">
+            <div class="letter-envelope">
+                <h2>Gửi các bạn nữ A10 thân mến!</h2>
+                <p>
+                    Hôm nay là ngày 20/10 – ngày đặc biệt dành riêng cho một nửa tuyệt vời nhất của lớp A10 chúng mình. 
+                    Tập thể con trai A10 xin gửi những lời chúc tốt đẹp nhất: Chúc các bạn luôn xinh đẹp, vui tươi, học giỏi và luôn rạng rỡ như những bông hoa tươi thắm nhất! 
+                    Cảm ơn vì đã luôn đồng hành, mang đến bao tiếng cười và niềm vui cho lớp chúng ta.
+                </p>
+                <div class="signature">Thân ái,<br>Tập thể Nam lớp A10 ❤️</div>
+            </div>
+        </div>
 
-  textCtx.textAlign='center';
-  textCtx.textBaseline='middle';
-  textCtx.font=`900 ${fontSize}px Arial,sans-serif`;
-  textCtx.fillStyle='#fff';
+        <!-- Nút chuyển Slide ở dưới cùng -->
+        <div class="nav-controls">
+            <button class="nav-btn active" onclick="switchSection(0)">1. Ô Bí Mật & Lịch</button>
+            <button class="nav-btn" onclick="switchSection(1)">2. Trái Tim Ảnh</button>
+            <button class="nav-btn" onclick="switchSection(2)">3. Lời Chúc</button>
+        </div>
+    </div>
 
-  const lineGap=fontSize*1.24;
-  const cy=H*.49;
+    <!-- Modal Phóng To Ảnh & Nút Quay Lại -->
+    <div id="photo-modal">
+        <img id="modal-img" src="" alt="Ảnh kỷ niệm A10">
+        <button class="back-btn" onclick="closePhotoModal()">Quay Lại</button>
+    </div>
 
-  lines.forEach((line,i)=>{
-    textCtx.fillText(line,W/2,cy+(i-.5)*lineGap);
-  });
+    <script>
+        // Danh sách đường dẫn 28 ảnh (.jpg)
+        const customImages = [
+            "anh1.jpg", "anh2.jpg", "anh3.jpg", "anh4.jpg", "anh5.jpg", "anh6.jpg",
+            "anh7.jpg", "anh8.jpg", "anh9.jpg", "anh10.jpg", "anh11.jpg", "anh12.jpg",
+            "anh13.jpg", "anh14.jpg", "anh15.jpg", "anh16.jpg", "anh17.jpg", "anh18.jpg",
+            "anh19.jpg", "anh20.jpg", "anh21.jpg", "anh22.jpg", "anh23.jpg", "anh24.jpg",
+            "anh25.jpg", "anh26.jpg", "anh27.jpg", "anh28.jpg"
+        ];
 
-  const data=textCtx.getImageData(
-    0,0,Math.floor(W),Math.floor(H)
-  ).data;
+        // Tạo hiệu ứng sao lấp lánh nền
+        const space = document.getElementById('space');
+        for (let i = 0; i < 120; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = Math.random() * 3 + 'px';
+            star.style.height = star.style.width;
+            star.style.top = Math.random() * 100 + '%';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 2 + 's';
+            space.appendChild(star);
+        }
 
-  targets=[];
-  const step=Math.max(3,Math.round(fontSize/14));
+        // Khởi tạo Lưới đúng 6 ô chữ bí mật
+        const puzzleGrid = document.getElementById('puzzle-grid');
+        for (let i = 0; i < 6; i++) {
+            const piece = document.createElement('div');
+            piece.className = 'puzzle-piece';
+            piece.innerText = `Bí Mật ${i + 1}`;
+            
+            const currentImgSrc = customImages[i % customImages.length];
+            
+            piece.addEventListener('click', () => {
+                openPhotoModal(currentImgSrc);
+            });
 
-  for(let y=0;y<H;y+=step){
-    for(let x=0;x<W;x+=step){
-      const index=(Math.floor(y)*Math.floor(W)+Math.floor(x))*4+3;
-      if(data[index]>100){
-        targets.push({x:x+rand(-1,1),y:y+rand(-1,1)});
-      }
-    }
-  }
-}
+            puzzleGrid.appendChild(piece);
+        }
 
-function initParticles(){
-  particles=[];
-  const count=Math.min(
-    9000,
-    Math.max(targets.length,Math.floor(W*H/90))
-  );
+        // Khởi tạo khối Trái Tim 3D chứa 28 điểm ảnh
+        const globe3d = document.getElementById('globe-3d');
+        const globeCount = 28;
+        for (let i = 0; i < globeCount; i++) {
+            const item = document.createElement('div');
+            item.className = 'globe-item';
+            item.innerText = `Ảnh ${i + 1}`;
+            
+            const currentImgSrc = customImages[i];
 
-  for(let i=0;i<count;i++){
-    const target=targets.length
-      ?targets[i%targets.length]
-      :{x:W/2,y:H/2};
+            // Công thức toán học tạo hình trái tim 3D
+            const t = (i / globeCount) * Math.PI * 2;
+            const x = 16 * Math.pow(Math.sin(t), 3);
+            const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+            const z = (i % 7 - 3) * 6;
 
-    particles.push({
-      x:rand(-W,W*1.3),
-      y:rand(-H,H*1.5),
-      tx:target.x,
-      ty:target.y,
-      r:rand(.7,1.9),
-      phase:rand(0,6.28),
-      hue:rand(12,31),
-      speed:rand(.018,.065)});
-  }
-  trail=[];
-}
+            const scaleFactor = 10;
+            const posX = x * scaleFactor;
+            const posY = y * scaleFactor;
+            const posZ = z * scaleFactor;
 
-function glowDot(x,y,r,alpha,hue=23){
-  ctx.globalAlpha=alpha;
-  ctx.fillStyle=`hsl(${hue},100%,${rand(52,68)}%)`;
-  ctx.shadowColor=`hsl(${hue},100%,55%)`;
-  ctx.shadowBlur=r*5;
-  ctx.beginPath();
-  ctx.arc(x,y,r,0,Math.PI*2);
-  ctx.fill();
-  ctx.shadowBlur=0;
-  ctx.globalAlpha=1;
-}
+            item.style.transform = `translate3d(${posX}px, ${posY}px, ${posZ}px)`;
 
-function draw(now){
-  const t=(now-start)/1000;
-  const dt=Math.min(.04,(now-last)/1000||.016);
-  last=now;
+            item.addEventListener('click', () => {
+                openPhotoModal(currentImgSrc);
+            });
 
-  ctx.clearRect(0,0,W,H);
+            globe3d.appendChild(item);
+        }
 
-  // Nền vũ trụ
-  const bg=ctx.createRadialGradient(
-    W*.42,H*.42,0,W*.5,H*.5,Math.max(W,H)*.8
-  );
-  bg.addColorStop(0,'#111b30');
-  bg.addColorStop(.52,'#080d1a');
-  bg.addColorStop(1,'#02030a');
-  ctx.fillStyle=bg;
-  ctx.fillRect(0,0,W,H);
+        // Hàm mở ảnh phóng to
+        function openPhotoModal(imgSrc) {
+            const modal = document.getElementById('photo-modal');
+            const modalImg = document.getElementById('modal-img');
+            modalImg.src = imgSrc;
+            modal.classList.add('show');
+        }
 
-  // Sao lấp lánh
-  for(const s of stars){
-    const tw=.45+.55*Math.sin(t*s.speed+s.phase);
-    ctx.globalAlpha=s.a*tw;
-    ctx.fillStyle='#dbe8ff';
-    ctx.beginPath();
-    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-    ctx.fill();
+        // Hàm đóng modal quay lại trang chính
+        function closePhotoModal() {
+            const modal = document.getElementById('photo-modal');
+            modal.classList.remove('show');
+        }
 
-    if(s.r>1.25){
-      ctx.globalAlpha=s.a*tw*.24;
-      ctx.fillRect(s.x-3,s.y,s.r*6,.5);
-      ctx.fillRect(s.x,s.y-3,.5,s.r*6);
-    }
-  }
-  ctx.globalAlpha=1;
+        // Chuyển đổi qua lại giữa các slide
+        function switchSection(index) {
+            const sections = document.querySelectorAll('.section');
+            const navBtns = document.querySelectorAll('.nav-btn');
 
-  // Dòng hạt sáng màu cam bay uốn lượn
-  const progress=Math.min(1,t/5.8);
-  const headX=W*(.02+.96*progress);
-  const headY=H*(.83-.36*Math.sin(progress*Math.PI*.92));
-
-  trail.push({x:headX,y:headY,age:0});
-  if(trail.length>110)trail.shift();
-
-  trail.forEach((p,i)=>{
-    p.age+=dt;
-    const fade=1-i/trail.length;
-
-    for(let k=0;k<2;k++){
-      const x=p.x+rand(-9,9);
-      const y=p.y+rand(-6,6);
-      glowDot(x,y,rand(.65,1.9),fade*rand(.25,.85),rand(14,31));
-    }
-  });
-
-  // Các hạt sáng tập hợp thành dòng chữ
-  const settle=Math.min(1,Math.max(0,(t-1.3)/5.5));
-
-  for(const p of particles){
-    const sway=Math.sin(t*1.5+p.phase)*(.7+2*(1-settle));
-    const jitter=(1-settle)*10;
-
-    const destX=p.tx+Math.sin(t*1.1+p.phase)*jitter;
-    const destY=p.ty+Math.cos(t*1.3+p.phase)*jitter;
-
-    p.x+=(destX-p.x)*p.speed;
-    p.y+=(destY-p.y)*p.speed;
-
-    const sparkle=.6+.4*Math.sin(t*3+p.phase);
-
-    glowDot(
-      p.x+sway,p.y,p.r,
-      .55+settle*.4*sparkle,p.hue
-    );
-  }
-
-  // Các đốm sáng trôi trong không gian
-  for(let i=0;i<22;i++){
-    const x=(i*137+t*12)%W;
-    const y=(i*79+Math.sin(t+i)*28+H*.18)%H;
-    glowDot(x,y,rand(.7,1.5),.45,rand(185,220));
-  }
-
-  if(t>8)hint.style.opacity='0';
-  requestAnimationFrame(draw);
-}
-
-// Thay đổi kích thước khi xoay điện thoại
-window.addEventListener('resize',resize);
-
-// Chạm màn hình để chạy lại hiệu ứng
-canvas.addEventListener('click',()=>{
-  start=performance.now();
-  makeTextTargets();
-  initParticles();
-  hint.style.opacity='1';
-});
-
-resize();
-requestAnimationFrame(draw);
-})();
-</script>
+            sections.forEach((sec, idx) => {
+                sec.classList.remove('active');
+                navBtns[idx].classList.remove('active');
+                if (idx === index) {
+                    sec.classList.add('active');
+                    navBtns[idx].classList.add('active');
+                }
+            });
+        }
+    </script>
 </body>
 </html>
